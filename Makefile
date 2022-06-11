@@ -41,6 +41,10 @@ not_gcc = $(subst gcc,${empty},${COMPILER})
 C_COMPILER = $(if ${not_gcc},clang,gcc-11)
 CXX_COMPILER = $(if ${not_gcc},clang++,g++-11)
 
+# ------------------------------------------ Needs to be adjusted for build on other systems
+# expected programs in PATH:
+#    make, cmake, clang, clang-format, run-clang-tidy, llvm-profdata, llvm-cov, gcc-11, gcov, lcov
+
 # needed for OS X to avoid Apple clang
 gcov := /usr/local/opt/gcc@11/bin/gcov-11
 llvm_path := /usr/local/opt/llvm
@@ -48,6 +52,7 @@ path := ${PATH}
 export PATH = $(if ${not_gcc},${llvm_path}/bin:${path},${path})
 export LDFLAGS = $(if ${not_gcc},-L${llvm_path}/lib,${empty})
 export CPPFLAGS = $(if ${not_gcc},-I${llvm_path}/include,${empty})
+# ------------------------------------------ Needs to be adjusted for build on other systems
 
 .Phony: all cleanall
 
@@ -59,6 +64,7 @@ cleanall:
 
 # needs:
 #  - targets: build, test, coverage
+#  - programme: make, cmake
 # provides:
 #  - targets: combinations, release, debug, cov
 include ${project_path}/make/combinations.mk

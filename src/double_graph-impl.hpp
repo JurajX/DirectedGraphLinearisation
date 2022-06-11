@@ -154,6 +154,10 @@ auto DoubleGraph<T>::lineariseGraph() -> std::list<T>
     return linearVertices;
 }
 
+
+//
+// =============================== Helpers
+
 template<class T>
 auto DoubleGraph<T>::splitOnDoubleEdges() const
   -> std::tuple<std::vector<std::unordered_set<T>>, std::unordered_map<T, size_t>, std::vector<std::unordered_map<size_t, size_t>>>
@@ -326,9 +330,6 @@ auto DoubleGraph<T>::orderDcc(const size_t position, const std::unordered_set<T>
 
     return orderedDcc;
 }
-
-//
-// =============================== Helpers
 
 //
 // =============================== Non-Member Fns

@@ -43,14 +43,14 @@ public:
     // ------------- Misc
     auto makeSubgraph(const std::unordered_set<T> &vertices) const -> DoubleGraph<T>;
     auto lineariseGraph() -> std::list<T>;
+
+private:
+    // ------------- Helpers
     auto splitOnDoubleEdges() const
       -> std::tuple<std::vector<std::unordered_set<T>>, std::unordered_map<T, size_t>, std::vector<std::unordered_map<size_t, size_t>>>;
     auto orderDccs(std::vector<std::unordered_map<size_t, size_t>> &dcc_adjs) const -> std::list<size_t>;
     auto orderDcc(const size_t position, const std::unordered_set<T> &vertices, const std::unordered_map<T, size_t> &vert_to_dcc) const
       -> std::list<T>;
-
-private:
-    // ------------- Helpers
 
     UndirectedGraph<T> singleEdgesGraph_;
     UndirectedGraph<T> doubleEdgesGraph_;

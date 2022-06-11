@@ -157,7 +157,7 @@ auto UndirectedGraph<T>::populateVerticesOfCcs() -> void
         toVisit.push_back(vertex);
         connectedComponent.insert(vertex);
 
-        while (!toVisit.empty()) {
+        while (not toVisit.empty()) {
             vertex = toVisit.front();
             toVisit.pop_front();
             visited.insert(vertex);

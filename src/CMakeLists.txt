@@ -2,6 +2,8 @@ set(
     HDRS
     ${CMAKE_SOURCE_DIR}/src/undirected_graph.hpp
     ${CMAKE_SOURCE_DIR}/src/double_graph.hpp
+    ${CMAKE_SOURCE_DIR}/src/undirected_graph-impl.hpp
+    ${CMAKE_SOURCE_DIR}/src/double_graph-impl.hpp
 )
 
 install(
@@ -14,8 +16,6 @@ add_library(
     graph SHARED
     ${CMAKE_SOURCE_DIR}/src/undirected_graph.cpp
     ${CMAKE_SOURCE_DIR}/src/double_graph.cpp
-    ${CMAKE_SOURCE_DIR}/src/undirected_graph-impl.hpp
-    ${CMAKE_SOURCE_DIR}/src/double_graph-impl.hpp
     ${HDRS}
 )
 add_compile_options(

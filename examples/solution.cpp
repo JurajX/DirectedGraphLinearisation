@@ -25,20 +25,20 @@ auto main(int /*argc*/, char ** /*argv*/) -> int    // NOLINT (bugprone-exceptio
     fmt::print("--- Solution Start\n");
 
     std::unordered_map<char, std::unordered_set<char>> adjacencyList {
-        {'a',      std::unordered_set<char> { 'c', 'i' }},
-        {'b',           std::unordered_set<char> { 'c' }},
-        {'c', std::unordered_set<char> { 'a', 'b', 'd' }},
-        {'d', std::unordered_set<char> { 'c', 'e', 'i' }},
-        {'e', std::unordered_set<char> { 'h', 'f', 'g' }},
-        {'f',      std::unordered_set<char> { 'h', 'g' }},
-        {'g',                std::unordered_set<char> {}},
-        {'h',           std::unordered_set<char> { 'e' }},
-        {'i',      std::unordered_set<char> { 'j', 'm' }},
-        {'j', std::unordered_set<char> { 'i', 'k', 'l' }},
-        {'k', std::unordered_set<char> { 'j', 'l', 'm' }},
-        {'l',                std::unordered_set<char> {}},
-        {'m',           std::unordered_set<char> { 'k' }},
-        {'n',      std::unordered_set<char> { 'm', 'l' }}
+        {'a',      { 'c', 'i' }},
+        {'b',           { 'c' }},
+        {'c', { 'a', 'b', 'd' }},
+        {'d', { 'c', 'e', 'i' }},
+        {'e', { 'h', 'f', 'g' }},
+        {'f',      { 'h', 'g' }},
+        {'g',                {}},
+        {'h',           { 'e' }},
+        {'i',      { 'j', 'm' }},
+        {'j', { 'i', 'k', 'l' }},
+        {'k', { 'j', 'l', 'm' }},
+        {'l',                {}},
+        {'m',           { 'k' }},
+        {'n',      { 'm', 'l' }}
     };
 
     auto result { lineariseDirectedGraph(adjacencyList) };

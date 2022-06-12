@@ -16,29 +16,29 @@ protected:
     const static inline auto &adjacencyList3 { test::adjList3 };
 };
 
-TEST_F(TestUndirectedGraph, TestConstructors)
+TEST_F(TestUndirectedGraph, TestConstructors)    // NOLINT
 {
     UndirectedGraph<char> g {};
     UndirectedGraph<char> g0 { adjacencyList0 };
     UndirectedGraph<char> g1 { adjacencyList1 };
-    EXPECT_EQ(g1, g0);
+    EXPECT_EQ(g1, g0);    // NOLINT
     UndirectedGraph<char> g2 { g1 };
-    EXPECT_EQ(g1, g2);
+    EXPECT_EQ(g1, g2);    // NOLINT
     UndirectedGraph<char> g3 { UndirectedGraph<char> {} };
-    EXPECT_EQ(g, g3);
-    g = g1;
-    EXPECT_EQ(g, g1);
+    EXPECT_EQ(g, g3);    // NOLINT
+    g2 = g1;
+    EXPECT_EQ(g2, g1);    // NOLINT
     g = UndirectedGraph<char> {};
-    EXPECT_EQ(g, g3);
+    EXPECT_EQ(g, g3);    // NOLINT
 }
 
-TEST_F(TestUndirectedGraph, TestInternalAdjacencyLists)
+TEST_F(TestUndirectedGraph, TestInternalAdjacencyLists)    // NOLINT
 {
     UndirectedGraph<char> g0 { adjacencyList0 };
     EXPECT_EQ(g0.getAdjacencyList(), adjacencyList1);
 }
 
-TEST_F(TestUndirectedGraph, TestConnectedness)
+TEST_F(TestUndirectedGraph, TestConnectedness)    // NOLINT
 {
     UndirectedGraph<char> g1 { adjacencyList1 };
     EXPECT_TRUE(g1.isConnected());
@@ -55,13 +55,15 @@ TEST_F(TestUndirectedGraph, TestConnectedness)
     UndirectedGraph<char> g3 { adjacencyList3 };
     EXPECT_FALSE(g3.isConnected());
     EXPECT_EQ(g3.getNumCcs(), 2);
-    for (const auto &vertices : g3.getVerticesOfCcs())
+    for (const auto &vertices : g3.getVerticesOfCcs()) {
         EXPECT_TRUE((vertices == keysAdjacencyList1) != (vertices == keysAdjacencyList2));    // () XOR ()
-    for (const auto &graph : g3.getCcs())
+    }
+    for (const auto &graph : g3.getCcs()) {
         EXPECT_TRUE((graph == g1) != (graph == g2));    // () XOR ()
+    }
 }
 
-TEST_F(TestUndirectedGraph, TestVertexExtraction)
+TEST_F(TestUndirectedGraph, TestVertexExtraction)    // NOLINT
 {
     UndirectedGraph<char> g1 { adjacencyList1 };
     EXPECT_EQ(g1.getNumVertices(), 4);
@@ -85,12 +87,12 @@ TEST_F(TestUndirectedGraph, TestVertexExtraction)
     }
 }
 
-TEST_F(TestUndirectedGraph, TestGraphAddition)
+TEST_F(TestUndirectedGraph, TestGraphAddition)    // NOLINT
 {
     UndirectedGraph<char> g1 { adjacencyList1 };
     UndirectedGraph<char> g2 { adjacencyList2 };
     UndirectedGraph<char> g3 { adjacencyList3 };
-    EXPECT_EQ(g1 + g2, g3);
+    EXPECT_EQ(g1 + g2, g3);    // NOLINT
 }
 
 //

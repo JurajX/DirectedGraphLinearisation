@@ -20,21 +20,21 @@ protected:
     const static inline auto &alConLin { test::alConLin };
 };
 
-TEST_F(TestDoubleGraph, TestConstructors)
+TEST_F(TestDoubleGraph, TestConstructors)    // NOLINT
 {
     DoubleGraph<char> g {};
     DoubleGraph<char> g1 { alDiscon };
     DoubleGraph<char> g2 { g1 };
-    EXPECT_EQ(g1, g2);
+    EXPECT_EQ(g1, g2);    // NOLINT
     DoubleGraph<char> g3 { DoubleGraph<char> {} };
-    EXPECT_EQ(g, g3);
+    EXPECT_EQ(g, g3);    // NOLINT
     g = g1;
-    EXPECT_EQ(g, g1);
-    g = DoubleGraph<char> {};
-    EXPECT_EQ(g, g3);
+    EXPECT_EQ(g, g1);    // NOLINT
+    g2 = DoubleGraph<char> {};
+    EXPECT_EQ(g2, g3);    // NOLINT
 }
 
-TEST_F(TestDoubleGraph, TestConnectedness)
+TEST_F(TestDoubleGraph, TestConnectedness)    // NOLINT
 {
     DoubleGraph<char> gC { alCon };
     EXPECT_TRUE(gC.isConnected());
@@ -48,7 +48,7 @@ TEST_F(TestDoubleGraph, TestConnectedness)
     }
 }
 
-TEST_F(TestDoubleGraph, TestVertexExtraction)
+TEST_F(TestDoubleGraph, TestVertexExtraction)    // NOLINT
 {
     DoubleGraph<char> gC { alCon };
     EXPECT_EQ(gC.getVertices(), keysAlCon);
@@ -57,7 +57,7 @@ TEST_F(TestDoubleGraph, TestVertexExtraction)
     EXPECT_EQ(gD.getVertices(), keysAlDiscon);
 }
 
-TEST_F(TestDoubleGraph, TestLinearisation)
+TEST_F(TestDoubleGraph, TestLinearisation)    // NOLINT
 {
     DoubleGraph<char> gC { alCon };
     auto actual { gC.lineariseGraph() };
@@ -66,7 +66,7 @@ TEST_F(TestDoubleGraph, TestLinearisation)
     EXPECT_THAT(actual, ::testing::AnyOf(alConLin, alConLinRev));
 
     DoubleGraph<char> gD { alDiscon };
-    EXPECT_THROW(gD.lineariseGraph(), std::runtime_error);
+    EXPECT_THROW(gD.lineariseGraph(), std::runtime_error);    // NOLINT
 }
 
 //

@@ -21,7 +21,7 @@ auto lineariseDirectedGraph(const std::unordered_map<T, std::unordered_set<T>> &
 }
 
 auto main(int /*argc*/, char ** /*argv*/) -> int    // NOLINT (bugprone-exception-escape)
-{
+{                                                   // NOLINTBEGIN
     fmt::print("--- Solution Start\n");
 
     std::unordered_map<char, std::unordered_set<char>> adjacencyList {
@@ -52,4 +52,4 @@ auto main(int /*argc*/, char ** /*argv*/) -> int    // NOLINT (bugprone-exceptio
     fmt::print("--- Solution End\n");
 
     return 0;
-}
+}    // NOLINTEND

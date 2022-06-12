@@ -7,7 +7,7 @@
 #include <unordered_set>
 
 auto main(int /*argc*/, char ** /*argv*/) -> int    // NOLINT (bugprone-exception-escape)
-{
+{                                                   // NOLINTBEGIN
     fmt::print("----- Start of the example.\n");
 
     std::unordered_map<char, std::unordered_set<char>> adjacencyList {
@@ -61,4 +61,4 @@ auto main(int /*argc*/, char ** /*argv*/) -> int    // NOLINT (bugprone-exceptio
     fmt::print("----- End of the example.\n");
 
     return 0;
-}
+}    // NOLINTEND

@@ -11,22 +11,17 @@ auto main(int /*argc*/, char ** /*argv*/) -> int    // NOLINT (bugprone-exceptio
     fmt::print("----- Start of the example.\n");
 
     std::unordered_map<char, std::unordered_set<char>> adjacencyList {
-        {'a',      std::unordered_set<char> { 'c', 'i' }},
-        {'b',           std::unordered_set<char> { 'c' }},
-        {'c', std::unordered_set<char> { 'a', 'b', 'd' }},
-        {'d',      std::unordered_set<char> { 'c', 'i' }},
-        {'e', std::unordered_set<char> { 'h', 'f', 'g' }},
-        {'f',      std::unordered_set<char> { 'h', 'g' }},
-        {'g',                std::unordered_set<char> {}},
-        {'h',           std::unordered_set<char> { 'e' }},
-        {'i',      std::unordered_set<char> { 'j', 'm' }},
-        {'j', std::unordered_set<char> { 'i', 'k', 'l' }},
-        {'k', std::unordered_set<char> { 'j', 'l', 'm' }},
-        {'l',                std::unordered_set<char> {}},
-        {'m',           std::unordered_set<char> { 'k' }},
-        {'n',      std::unordered_set<char> { 'm', 'l' }}
+        {'a',           { 'c' }},
+        {'b',           { 'c' }},
+        {'c', { 'a', 'b', 'd' }},
+        {'d',           { 'c' }},
+        {'e', { 'h', 'f', 'g' }},
+        {'f',      { 'h', 'g' }},
+        {'g',                {}},
+        {'h',                {}}
     };
 
+    /// [example_double_graph]
     DoubleGraph<char> g { adjacencyList };
     fmt::print("The graph 'g'\n - is connected: {}.\n - it's vertices and their adjacency lists are:\n", g.isConnected());
     std::cout << g;
@@ -35,6 +30,33 @@ auto main(int /*argc*/, char ** /*argv*/) -> int    // NOLINT (bugprone-exceptio
     for (const auto &graph : ccs) {
         std::cout << graph << "\n";
     }
+    /// [example_double_graph]
+    /// [example_double_graph_output]
+    /*
+    The graph 'g'
+     - is connected: false.
+     - it's vertices and their adjacency lists are:
+       a   -->single edges: 		-->double edges: c,
+       b   -->single edges: 		-->double edges: c,
+       c   -->single edges: 		-->double edges: a, b, d,
+       d   -->single edges: 		-->double edges: c,
+       e   -->single edges: h, f, g, 	-->double edges:
+       f   -->single edges: e, h, g, 	-->double edges:
+       g   -->single edges: f, e, 		-->double edges:
+       h   -->single edges: f, e, 		-->double edges:
+
+     - it has 2 connected component(s). The connected components's vertices and adjacency lists are:
+       a   -->single edges: 		-->double edges: c,
+       c   -->single edges: 		-->double edges: d, b, a,
+       d   -->single edges: 		-->double edges: c,
+       b   -->single edges: 		-->double edges: c,
+
+       e   -->single edges: g, f, h, 	-->double edges:
+       h   -->single edges: e, f, 		-->double edges:
+       f   -->single edges: g, h, e, 	-->double edges:
+       g   -->single edges: e, f, 		-->double edges:
+    */
+    /// [example_double_graph_output]
 
     fmt::print("----- End of the example.\n");
 

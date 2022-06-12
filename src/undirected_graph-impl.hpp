@@ -90,27 +90,6 @@ auto UndirectedGraph<T>::isConnected() const -> bool
     return verticesOfCcs_.size() == 1;
 }
 
-template<class T>
-auto UndirectedGraph<T>::makeSubgraph(const std::unordered_set<T> &vertices) const -> UndirectedGraph<T>
-{
-    std::unordered_map<T, std::unordered_set<T>> newAdjacencyList;
-    for (const T &vertex : vertices) {
-        const auto &adjs { adjacencyList_.at(vertex) };
-        std::vector<T> newAdjs;
-        std::copy_if(adjs.cbegin(), adjs.cend(), std::back_inserter(newAdjs), [&vertices = std::as_const(vertices)](const T &adj) {
-            return vertices.contains(adj);
-        });
-        newAdjacencyList.try_emplace(vertex, std::move_iterator(newAdjs.begin()), std::move_iterator(newAdjs.end()));
-    }
-    return { newAdjacencyList };
-}
-
-template<class T>
-auto UndirectedGraph<T>::contains(const T &vertex) -> bool
-{
-    return adjacencyList_.contains(vertex);
-}
-
 //
 // =============================== Operators
 
@@ -132,6 +111,27 @@ auto UndirectedGraph<T>::operator+(const UndirectedGraph<T> &other) const -> Und
 
 //
 // =============================== Misc
+
+template<class T>
+auto UndirectedGraph<T>::makeSubgraph(const std::unordered_set<T> &vertices) const -> UndirectedGraph<T>
+{
+    std::unordered_map<T, std::unordered_set<T>> newAdjacencyList;
+    for (const T &vertex : vertices) {
+        const auto &adjs { adjacencyList_.at(vertex) };
+        std::vector<T> newAdjs;
+        std::copy_if(adjs.cbegin(), adjs.cend(), std::back_inserter(newAdjs), [&vertices = std::as_const(vertices)](const T &adj) {
+            return vertices.contains(adj);
+        });
+        newAdjacencyList.try_emplace(vertex, std::move_iterator(newAdjs.begin()), std::move_iterator(newAdjs.end()));
+    }
+    return { newAdjacencyList };
+}
+
+template<class T>
+auto UndirectedGraph<T>::contains(const T &vertex) -> bool
+{
+    return adjacencyList_.contains(vertex);
+}
 
 //
 // =============================== Helpers

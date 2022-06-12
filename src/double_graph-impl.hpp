@@ -98,12 +98,6 @@ auto DoubleGraph<T>::getNumCcs() -> size_t
 }
 
 template<class T>
-auto DoubleGraph<T>::isConnected() -> bool
-{
-    return getNumCcs() == 1;
-}
-
-template<class T>
 auto DoubleGraph<T>::getCcs() -> std::vector<DoubleGraph<T>>
 {
     getVerticesOfCcs();
@@ -114,6 +108,12 @@ auto DoubleGraph<T>::getCcs() -> std::vector<DoubleGraph<T>>
         return g;
     });
     return ccs;
+}
+
+template<class T>
+auto DoubleGraph<T>::isConnected() -> bool
+{
+    return getNumCcs() == 1;
 }
 
 //

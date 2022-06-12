@@ -11,22 +11,19 @@ auto main(int /*argc*/, char ** /*argv*/) -> int    // NOLINT (bugprone-exceptio
     fmt::print("----- Start of the example.\n");
 
     std::unordered_map<char, std::unordered_set<char>> adjacencyList {
-        {'a',           std::unordered_set<char> { 'c' }},
-        {'b',           std::unordered_set<char> { 'c' }},
-        {'c', std::unordered_set<char> { 'a', 'b', 'd' }},
-        {'d',           std::unordered_set<char> { 'c' }},
-        {'e', std::unordered_set<char> { 'h', 'f', 'g' }},
-        {'f',      std::unordered_set<char> { 'h', 'g' }},
-        {'g',                std::unordered_set<char> {}},
-        {'h',           std::unordered_set<char> { 'e' }},
-        {'i',      std::unordered_set<char> { 'j', 'm' }},
-        {'j', std::unordered_set<char> { 'i', 'k', 'l' }},
-        {'k', std::unordered_set<char> { 'j', 'l', 'm' }},
-        {'l',                std::unordered_set<char> {}},
-        {'m',           std::unordered_set<char> { 'k' }},
-        {'n',      std::unordered_set<char> { 'm', 'l' }}
+        {'a',           { 'c' }},
+        {'b',           { 'c' }},
+        {'c', { 'a', 'b', 'd' }},
+        {'d',           { 'c' }},
+        {'e',      { 'h', 'f' }},
+        {'f',           { 'h' }},
+        {'h',           { 'e' }},
+        {'i',           { 'j' }},
+        {'j',      { 'i', 'k' }},
+        {'k',           { 'j' }}
     };
 
+    /// [example_undirected_graph]
     UndirectedGraph<char> g { adjacencyList };
     fmt::print("The graph 'g'\n - is connected: {}.\n - it's vertices and their adjacency lists are:\n", g.isConnected());
     std::cout << g;
@@ -35,6 +32,38 @@ auto main(int /*argc*/, char ** /*argv*/) -> int    // NOLINT (bugprone-exceptio
     for (const auto &graph : ccs) {
         std::cout << graph << "\n";
     }
+    /// [example_undirected_graph]
+    /// [example_undirected_graph_output]
+    /*
+    The graph 'g'
+     - is connected: false.
+     - it's vertices and their adjacency lists are:
+            k: j,
+            j: k, i,
+            i: j,
+            h: f, e,
+            f: e, h,
+            e: f, h,
+            d: c,
+            c: d, b, a,
+            b: c,
+            a: c,
+
+     - it has 3 connected component(s). The connected components's vertices and adjacency lists are:
+            k: j,
+            j: i, k,
+            i: j,
+
+            h: e, f,
+            f: h, e,
+            e: h, f,
+
+            d: c,
+            c: a, b, d,
+            b: c,
+            a: c,
+    */
+    /// [example_undirected_graph_output]
 
     fmt::print("----- End of the example.\n");
 

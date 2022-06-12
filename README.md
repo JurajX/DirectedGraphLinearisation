@@ -39,3 +39,23 @@ Steps:
         5. Zip insert the branches into the final list.
     4. Concatenate the partial lists from step 2.3. according to the order from the step 2.2. (Complexity $O(n_{v})$ for both time and space.)
 3. Arbitrarily concatenates the ordered lists from the step 2. (Complexity $O(n_{v})$ for both time and space.)
+
+# Building
+
+To build the repo one can use the provided `Makefile`. It offers the following targets:
+- `build` (builds the project) with `COMPILER` and `BUILD_TYPE` options;
+- `test` (runs tests, one must first build) with `COMPILER` and `BUILD_TYPE` options;
+- `clean` (removes the build, except external downloads) with `COMPILER` and `BUILD_TYPE` options;
+- `cclean` (removes the build, with external downloads) with `COMPILER` and `BUILD_TYPE` options;
+- `coverage` (builds coverage) with `COMPILER` option, placed in `./build/COMPILER/Coverage/coverage/html`;
+- `docs` (builds documentation), placed in `./build/docs/html`;
+- `tidy` (runs clang tidy);
+- `format` (runs clang format);
+- `all` (runs all combinations);
+- `cleanall` (cleans `./build` folder).
+
+The variables, `COMPILER` and `BUILD_TYPE`, can be set to 'gcc' or 'clang' and 'Debug' or 'Release', respectively.
+All binaries are places in `./build/COMPILER/BUILD_TYPE/bin`.
+The `solution` is in the example folder.
+
+Makefile is adapted for Intel MacBook with HomeBrew; for a different system please change [this](https://github.com/JurajX/DirectedGraphLinearisation/blob/master/Makefile#L44) part of the makefile.

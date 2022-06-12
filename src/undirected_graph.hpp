@@ -105,13 +105,13 @@ public:
 
 private:
     // ------------- Helpers
-    /// @brief Symetrises the adjacency list.
+    /// @brief Symmetrises the adjacency list.
     auto symmetrise() -> void;
 
-    /// @brief Determines conected components of the graphs using BFS.
+    /// @brief Determines connected components of the graphs using BFS.
     auto populateVerticesOfCcs() -> void;
 
-    // symetrised adjacency list
+    // symmetrised adjacency list
     std::unordered_map<T, std::unordered_set<T>> adjacencyList_ {};
 
     // vertices of connected components

@@ -81,7 +81,7 @@ public:
     auto getVertices() const -> std::unordered_set<T>;
 
     /// @brief Get the vertices of the graph's connected components.
-    /// Internaly creates an undirected graph by joining the single and double edge graphs and finds the connected components.
+    /// Internally creates an undirected graph by joining the single and double edge graphs and finds the connected components.
     /// @return const std::vector<std::unordered_set<T>> & A constant reference to the vertices of connected components.
     [[maybe_unused]] auto getVerticesOfCcs() -> const std::vector<std::unordered_set<T>> &;
 
@@ -105,7 +105,7 @@ public:
 
     // ------------- Misc
 
-    /// @brief Create a subgraph from selected vertices, all edges not contained in the new sub-graph are prunned.
+    /// @brief Create a subgraph from selected vertices, all edges not contained in the new sub-graph are pruned.
     /// @param vertices The set of vertices for the sub-graph.
     /// @return UndirectedGraph<T> The sub-graph.
     auto makeSubgraph(const std::unordered_set<T> &vertices) const -> DoubleGraph<T>;

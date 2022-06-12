@@ -65,7 +65,7 @@ const std::unordered_set<char> keysAlDiscon2 { 'e', 'f', 'g', 'h' };
 const std::unordered_set<char> keysAlDiscon3 { 'i', 'j', 'k', 'l', 'm', 'n' };
 
 const std::unordered_map<char, std::unordered_set<char>> alCon {
-    {'a',      { 'c', 'i' }},
+    {'a', { 'c', 'i', 'j' }},
     {'b',      { 'c', 'e' }},
     {'c', { 'a', 'b', 'd' }},
     {'d',      { 'c', 'i' }},

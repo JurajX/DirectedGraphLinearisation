@@ -119,7 +119,7 @@ auto DoubleGraph<T>::getCcs() -> std::vector<DoubleGraph<T>>
 // =============================== Operators
 
 template<class T>
-auto DoubleGraph<T>::operator==(const DoubleGraph<T> &other) -> bool
+auto DoubleGraph<T>::operator==(const DoubleGraph<T> &other) const -> bool
 {
     return (singleEdgesGraph_ == other.singleEdgesGraph_) && (doubleEdgesGraph_ == other.doubleEdgesGraph_);
 }

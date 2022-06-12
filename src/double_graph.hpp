@@ -38,7 +38,7 @@ public:
     auto getCcs() -> std::vector<DoubleGraph<T>>;
 
     // ------------- Operators
-    auto operator==(const DoubleGraph<T> &other) -> bool;
+    auto operator==(const DoubleGraph<T> &other) const -> bool;
 
     // ------------- Misc
     auto makeSubgraph(const std::unordered_set<T> &vertices) const -> DoubleGraph<T>;

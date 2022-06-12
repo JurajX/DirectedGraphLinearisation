@@ -66,14 +66,23 @@ TEST_F(TestUndirectedGraph, TestVertexExtraction)
     UndirectedGraph<char> g1 { adjacencyList1 };
     EXPECT_EQ(g1.getNumVertices(), 4);
     EXPECT_EQ(g1.getVertices(), keysAdjacencyList1);
+    for (const auto &vertex : keysAdjacencyList1) {
+        EXPECT_TRUE(g1.contains(vertex));
+    }
 
     UndirectedGraph<char> g2 { adjacencyList2 };
     EXPECT_EQ(g2.getNumVertices(), 4);
     EXPECT_EQ(g2.getVertices(), keysAdjacencyList2);
+    for (const auto &vertex : keysAdjacencyList2) {
+        EXPECT_TRUE(g2.contains(vertex));
+    }
 
     UndirectedGraph<char> g3 { adjacencyList3 };
     EXPECT_EQ(g3.getNumVertices(), 8);
     EXPECT_EQ(g3.getVertices(), keysAdjacencyList3);
+    for (const auto &vertex : keysAdjacencyList3) {
+        EXPECT_TRUE(g3.contains(vertex));
+    }
 }
 
 TEST_F(TestUndirectedGraph, TestGraphAddition)

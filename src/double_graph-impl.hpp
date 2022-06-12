@@ -260,9 +260,9 @@ auto DoubleGraph<T>::orderDcc(const size_t position, const std::unordered_set<T>
 
     // compute vertex balance, i.e. the result of adding all 'signed'hops a vertex have to do (hops to the right/left are positive/negative)
     std::unordered_map<T, int> vertBalance;
-    for (const auto &[vertex, adjs] : sAdjList) {
+    for (const auto &vertex : vertices) {
         vertBalance[vertex] = 0;
-        for (const T &adj : adjs) {
+        for (const T &adj : sAdjList.at(vertex)) {
             if (vert_to_dcc.at(adj) > position)
                 vertBalance[vertex] += 1;
             else if (vert_to_dcc.at(adj) < position)

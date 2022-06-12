@@ -10,6 +10,7 @@
 #include <deque>
 #include <iostream>
 #include <iterator>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 
@@ -116,7 +117,7 @@ auto UndirectedGraph<T>::contains(const T &vertex) -> bool
 template<class T>
 auto UndirectedGraph<T>::operator==(const UndirectedGraph<T> &other) const -> bool
 {
-    return (adjacencyList_ == other.adjacencyList_) && (verticesOfCcs_ == other.verticesOfCcs_);
+    return adjacencyList_ == other.adjacencyList_;
 }
 
 template<class T>
@@ -139,8 +140,12 @@ template<class T>
 auto UndirectedGraph<T>::symmetrise() -> void
 {
     for (const auto &[vertex, adjs] : adjacencyList_) {
-        for (const auto &adj : adjs)
+        for (const auto &adj : adjs) {
+            if (not adjacencyList_.contains(adj)) {
+                throw std::invalid_argument("Given adjacency list contains adjacencies that are not among the vertices.");
+            }
             adjacencyList_[adj].insert(vertex);
+        }
     }
 }
 
@@ -156,7 +161,7 @@ auto UndirectedGraph<T>::populateVerticesOfCcs() -> void
         std::unordered_set<T> connectedComponent;
         toVisit.push_back(vertex);
         connectedComponent.insert(vertex);
-
+        // do breadth-first search
         while (not toVisit.empty()) {
             vertex = toVisit.front();
             toVisit.pop_front();

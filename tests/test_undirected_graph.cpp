@@ -1,56 +1,35 @@
 #include <gtest/gtest.h>
 
+#include "resources/test_data.hpp"
 #include <undirected_graph.hpp>
 
 class TestUndirectedGraph : public ::testing::Test
 {
 protected:
-    const static inline std::unordered_set<char> keysAdjacencyList0 { 'a', 'b', 'c', 'd' };
-    const static inline std::unordered_map<char, std::unordered_set<char>> adjacencyList0 {
-        {'a',           std::unordered_set<char> { 'b' }},
-        {'b',           std::unordered_set<char> { 'd' }},
-        {'c', std::unordered_set<char> { 'a', 'b', 'd' }},
-        {'d',           std::unordered_set<char> { 'a' }}
-    };
-    const static inline std::unordered_set<char> keysAdjacencyList1 { 'a', 'b', 'c', 'd' };
-    const static inline std::unordered_map<char, std::unordered_set<char>> adjacencyList1 {
-        {'a', std::unordered_set<char> { 'b', 'c', 'd' }},
-        {'b', std::unordered_set<char> { 'a', 'c', 'd' }},
-        {'c', std::unordered_set<char> { 'a', 'b', 'd' }},
-        {'d', std::unordered_set<char> { 'a', 'b', 'c' }}
-    };
-    const static inline std::unordered_set<char> keysAdjacencyList2 { 'e', 'f', 'g', 'h' };
-    const static inline std::unordered_map<char, std::unordered_set<char>> adjacencyList2 {
-        {'e', std::unordered_set<char> { 'h', 'f', 'g' }},
-        {'f',      std::unordered_set<char> { 'h', 'g' }},
-        {'g',                std::unordered_set<char> {}},
-        {'h',           std::unordered_set<char> { 'e' }},
-    };
-    const static inline std::unordered_set<char> keysAdjacencyList3 { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
-    static inline std::unordered_map<char, std::unordered_set<char>> adjacencyList3;
-    static auto SetUpTestSuite() -> void;
+    const static inline auto &keysAdjacencyList0 { test::keysAdjList0 };
+    const static inline auto &adjacencyList0 { test::adjList0 };
+    const static inline auto &keysAdjacencyList1 { test::keysAdjList1 };
+    const static inline auto &adjacencyList1 { test::adjList1 };
+    const static inline auto &keysAdjacencyList2 { test::keysAdjList2 };
+    const static inline auto &adjacencyList2 { test::adjList2 };
+    const static inline auto &keysAdjacencyList3 { test::keysAdjList3 };
+    const static inline auto &adjacencyList3 { test::adjList3 };
 };
-
-auto TestUndirectedGraph::SetUpTestSuite() -> void
-{
-    adjacencyList3 = adjacencyList1;
-    adjacencyList3.insert(adjacencyList2.begin(), adjacencyList2.end());
-}
 
 TEST_F(TestUndirectedGraph, TestConstructors)
 {
     UndirectedGraph<char> g {};
     UndirectedGraph<char> g0 { adjacencyList0 };
     UndirectedGraph<char> g1 { adjacencyList1 };
-    EXPECT_TRUE(g1 == g0);
+    EXPECT_EQ(g1, g0);
     UndirectedGraph<char> g2 { g1 };
-    EXPECT_TRUE(g1 == g2);
+    EXPECT_EQ(g1, g2);
     UndirectedGraph<char> g3 { UndirectedGraph<char> {} };
-    EXPECT_TRUE(g == g3);
+    EXPECT_EQ(g, g3);
     g = g1;
-    EXPECT_TRUE(g == g1);
+    EXPECT_EQ(g, g1);
     g = UndirectedGraph<char> {};
-    EXPECT_TRUE(g == g3);
+    EXPECT_EQ(g, g3);
 }
 
 TEST_F(TestUndirectedGraph, TestInternalAdjacencyLists)
@@ -63,15 +42,15 @@ TEST_F(TestUndirectedGraph, TestConnectedness)
 {
     UndirectedGraph<char> g1 { adjacencyList1 };
     EXPECT_TRUE(g1.isConnected());
-    EXPECT_EQ(g1.getNumCcs(), 1);
+    ASSERT_EQ(g1.getNumCcs(), 1);
     EXPECT_EQ(g1.getVerticesOfCcs().front(), keysAdjacencyList1);
-    EXPECT_TRUE(g1.getCcs().front() == g1);
+    EXPECT_EQ(g1.getCcs().front(), g1);
 
     UndirectedGraph<char> g2 { adjacencyList2 };
     EXPECT_TRUE(g2.isConnected());
-    EXPECT_EQ(g2.getNumCcs(), 1);
+    ASSERT_EQ(g2.getNumCcs(), 1);
     EXPECT_EQ(g2.getVerticesOfCcs().front(), keysAdjacencyList2);
-    EXPECT_TRUE(g2.getCcs().front() == g2);
+    EXPECT_EQ(g2.getCcs().front(), g2);
 
     UndirectedGraph<char> g3 { adjacencyList3 };
     EXPECT_FALSE(g3.isConnected());

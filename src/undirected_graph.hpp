@@ -26,9 +26,10 @@ public:
     auto getAdjacencyList() const -> const std::unordered_map<T, std::unordered_set<T>> &;
     auto getVertices() const -> std::unordered_set<T>;
     auto getNumVertices() const -> size_t;
+
     auto getVerticesOfCcs() const -> const std::vector<std::unordered_set<T>> &;
-    auto getCcs() const -> std::vector<UndirectedGraph<T>>;
     auto getNumCcs() const -> size_t;
+    auto getCcs() const -> std::vector<UndirectedGraph<T>>;
     auto isConnected() const -> bool;
 
     auto makeSubgraph(const std::unordered_set<T> &vertices) const -> UndirectedGraph<T>;

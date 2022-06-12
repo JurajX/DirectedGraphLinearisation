@@ -158,7 +158,6 @@ auto operator<<(std::ostream &os, const DoubleGraph<T> &g) -> std::ostream &;
 
 // ===== ===== ===== ===== Instantiations
 /// tell doxygen to skip from here \cond
-extern template class DoubleGraph<int>;
 extern template class DoubleGraph<char>;
 /// tell doxygen to skip untill here \endcond
 

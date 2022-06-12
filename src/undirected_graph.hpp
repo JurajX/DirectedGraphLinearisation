@@ -133,7 +133,6 @@ auto operator<<(std::ostream &os, const UndirectedGraph<T> &g) -> std::ostream &
 
 // ===== ===== ===== ===== Instantiations for faster compilation of dependencies
 /// tell doxygen to skip from here \cond
-extern template class UndirectedGraph<int>;
 extern template class UndirectedGraph<char>;
 /// tell doxygen to skip untill here \endcond
 

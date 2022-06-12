@@ -10,5 +10,4 @@ macro(initiate)
     include(gtest)                  # needs FetchContent
     include(add_compile_options)
     include(add_exe)                # needs add_compile_options and gtest
-    find_package(Eigen3 REQUIRED)
 endmacro(initiate)

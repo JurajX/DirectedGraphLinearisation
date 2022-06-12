@@ -1,7 +1,7 @@
 FetchContent_Declare(
     fmt
     GIT_REPOSITORY      https://github.com/fmtlib/fmt.git
-    GIT_TAG             origin/master
+    GIT_TAG             8.1.0
     GIT_PROGRESS        ON
     UPDATE_DISCONNECTED ON
 )

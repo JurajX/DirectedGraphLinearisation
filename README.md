@@ -1,6 +1,8 @@
 # DirectedGraphLinearisation
 
-This repo attempts to create a reasonably performing 'linearisation of a directed graph' such that it minimises the cost that is defined as $c = \sum_{i} \mathrm{dist}(e_i),$ where $\mathrm{dist}(e_i)$ is the distance (i.e. number of hops) between the two vertices of the edge $e_i$.
+This repo attempts to create a reasonably performing 'linearisation of a directed graph' such that it minimises the cost that is defined as
+$c = \sum_{i} \mathrm{dist}(e_i)$
+, where $\mathrm{dist}(e_i)$ is the distance (i.e. number of hops) between the two vertices of the edge $e_i$.
 
 Additionally:
 - Analyse time and space complexity, i.e. big-O of the number of vertices and edges.

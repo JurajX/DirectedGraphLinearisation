@@ -140,21 +140,12 @@ auto DoubleGraph<T>::lineariseGraph() -> std::list<T>
     if (not isConnected())
         throw std::runtime_error("The graph must be connected. Please split the graph to connected components first.");
 
-    auto [dccsVerts, vertToDcc, dccsAdjs] { splitOnDoubleEdges() };
-    auto dccIdxOrder { orderDccs(dccsAdjs) };
-
-    // find the map from the new order of DCCs to the old one
-    std::vector<size_t> dccIdxOrderInv(dccIdxOrder.size());
-    for (auto it { dccIdxOrder.cbegin() }; it != dccIdxOrder.cend(); ++it) {
-        auto idx { std::distance(dccIdxOrder.cbegin(), it) };
-        dccIdxOrderInv[*it] = static_cast<size_t>(idx);
-    }
-    // update the vertex to DCC group mapping with the new order of DCCs
-    std::for_each(vertToDcc.begin(), vertToDcc.end(), [&dccIdxOrderInv](auto &p) { p.second = dccIdxOrderInv[p.second]; });
+    auto [vertToDcc, dccsAdjs] { splitOnDoubleEdges() };
+    auto [orderedDccsVerts, orderedVertToDcc] = orderDccs(vertToDcc, dccsAdjs);
 
     std::list<T> linearVertices;
-    for (const auto &idx : dccIdxOrder) {
-        std::list<T> orderedDcc { orderDcc(dccIdxOrderInv[idx], dccsVerts[idx], vertToDcc) };
+    for (size_t idx = 0; idx < orderedDccsVerts.size(); idx += 1) {
+        std::list<T> orderedDcc { orderDcc(orderedDccsVerts[idx], orderedVertToDcc) };
         linearVertices.splice(linearVertices.end(), orderedDcc);
     }
     return linearVertices;
@@ -164,34 +155,113 @@ auto DoubleGraph<T>::lineariseGraph() -> std::list<T>
 // =============================== Helpers
 
 template<class T>
-auto DoubleGraph<T>::splitOnDoubleEdges() const
-  -> std::tuple<std::vector<std::unordered_set<T>>, std::unordered_map<T, size_t>, std::vector<std::unordered_map<size_t, size_t>>>
+auto DoubleGraph<T>::splitOnDoubleEdges() const -> std::tuple<std::unordered_map<T, size_t>, std::vector<std::unordered_map<size_t, size_t>>>
 {
-    const std::vector<std::unordered_set<T>> &dccsVerts { doubleEdgesGraph_.getVerticesOfCcs() };
+    std::unordered_map<T, size_t> vertToDcc { buildVertexToDcc() };
+    std::vector<std::unordered_map<size_t, size_t>> dccsAdjs { buildDccsAdjs(vertToDcc) };
+
+    return { vertToDcc, dccsAdjs };
+}
+
+template<class T>
+auto DoubleGraph<T>::buildVertexToDcc() const -> std::unordered_map<T, size_t>
+{
+    const auto &dccsVerts { doubleEdgesGraph_.getVerticesOfCcs() };
     std::unordered_map<T, size_t> vertToDcc;
-    std::vector<std::unordered_map<size_t, size_t>> dccsAdjs { dccsVerts.size() };
     for (const auto &group : dccsVerts) {
         for (const auto &[vertex, _] : singleEdgesGraph_.getAdjacencyList()) {
             if (group.contains(vertex))
                 vertToDcc[vertex] = static_cast<size_t>(&group - &dccsVerts.front());
         }
     }
-    for (const auto &[vertex, adjs] : singleEdgesGraph_.getAdjacencyList()) {
-        for (const auto &adj : adjs) {
-            if (vertToDcc[adj] == vertToDcc[vertex])
-                continue;
-            auto &map { dccsAdjs.at(vertToDcc[vertex]) };
-            const auto &key { vertToDcc[adj] };
-            map.contains(key) ? map[key] += 1 : map[key] = 1;
-        }
-    }
-    return { dccsVerts, vertToDcc, dccsAdjs };
+    return vertToDcc;
 }
 
 template<class T>
-auto DoubleGraph<T>::orderDccs(std::vector<std::unordered_map<size_t, size_t>> &dcc_adjs) const -> std::list<size_t>
+auto DoubleGraph<T>::buildDccsAdjs(const std::unordered_map<T, size_t> &vert_to_dcc) const -> std::vector<std::unordered_map<size_t, size_t>>
 {
-    // find the group seed with the most adjacent group connections
+    std::vector<std::unordered_map<size_t, size_t>> dccsAdjs { doubleEdgesGraph_.getVerticesOfCcs().size() };
+    for (const auto &[vertex, adjs] : singleEdgesGraph_.getAdjacencyList()) {
+        for (const auto &adj : adjs) {
+            auto dccIdxOfAdj { vert_to_dcc.at(adj) };
+            auto dccIdxOfVert { vert_to_dcc.at(vertex) };
+            if (dccIdxOfAdj == dccIdxOfVert)
+                continue;
+            auto &map { dccsAdjs[dccIdxOfVert] };
+            map.contains(dccIdxOfAdj) ? map[dccIdxOfAdj] += 1 : map[dccIdxOfAdj] = 1;
+        }
+    }
+    return dccsAdjs;
+}
+
+template<class T>
+auto DoubleGraph<T>::orderDccs(const std::unordered_map<T, size_t> &vert_to_dcc, std::vector<std::unordered_map<size_t, size_t>> &dccs_adjs) const
+  -> std::tuple<std::vector<std::unordered_set<T>>, std::unordered_map<T, size_t>>
+{
+    auto dccIdxOrder { computeDccIdxOrder(dccs_adjs) };
+    auto orderedVertToDcc { orderVertToDcc(dccIdxOrder, vert_to_dcc) };
+
+    const auto &dccsVerts { doubleEdgesGraph_.getVerticesOfCcs() };
+    std::vector<std::unordered_set<T>> orderedDccxVerts;
+    std::transform(dccIdxOrder.cbegin(), dccIdxOrder.cend(), std::back_inserter(orderedDccxVerts), [&dccsVerts](const auto &idx) {
+        return dccsVerts[idx];
+    });
+    return { orderedDccxVerts, orderedVertToDcc };
+}
+
+template<class T>
+auto DoubleGraph<T>::computeDccIdxOrder(std::vector<std::unordered_map<size_t, size_t>> &dcc_adjs) const -> std::list<size_t>
+{
+    auto eraseIdxFromDccAdjs { [&dcc_adjs](size_t idx) {
+        std::for_each(dcc_adjs.begin(), dcc_adjs.end(), [&idx](auto &map) { map.erase(idx); });
+    } };
+    auto LessOnSecond { [](const auto &a, const auto &b) {
+        return a.second < b.second;
+    } };
+    auto findNonEmptyMap { [&dcc_adjs](auto it) -> std::unordered_map<size_t, size_t> {
+        std::unordered_map<size_t, size_t> elem {};
+        for (; elem.empty(); ++it)
+            elem = dcc_adjs.at(*it);
+        return elem;
+    } };
+
+    size_t idx { findMostConnectedDcc(dcc_adjs) };
+    std::list<size_t> dccIdxOrder;
+    dccIdxOrder.push_back(idx);
+    eraseIdxFromDccAdjs(idx);
+
+    // find a group from group adjacent list that has the most connection to the right/left-most element of the final list
+    // place this group into the final list on the correct side and erase it from the group adjacents list
+    while (dccIdxOrder.size() < dcc_adjs.size()) {
+        auto front { findNonEmptyMap(dccIdxOrder.cbegin()) };
+        auto back { findNonEmptyMap(dccIdxOrder.crbegin()) };
+        auto frontMax { std::max_element(front.cbegin(), front.cend(), LessOnSecond) };
+        auto backMax { std::max_element(back.cbegin(), back.cend(), LessOnSecond) };
+        bool trueFront { front == dcc_adjs.at(dccIdxOrder.front()) };
+        bool trueBack { back == dcc_adjs.at(dccIdxOrder.back()) };
+        if (trueFront == trueBack) {
+            if (frontMax->second > backMax->second) {
+                idx = frontMax->first;
+                dccIdxOrder.push_front(idx);
+            } else {
+                idx = backMax->first;
+                dccIdxOrder.push_back(idx);
+            }
+        } else if (trueFront) {    // only front
+            idx = frontMax->first;
+            dccIdxOrder.push_front(idx);
+        } else {    // only back
+            idx = backMax->first;
+            dccIdxOrder.push_back(idx);
+        }
+        eraseIdxFromDccAdjs(idx);
+    }
+    return dccIdxOrder;
+}
+
+template<class T>
+auto DoubleGraph<T>::findMostConnectedDcc(const std::vector<std::unordered_map<size_t, size_t>> &dcc_adjs) const -> size_t
+{
     size_t max { 0 };
     size_t idx { 0 };
     for (const auto &map : dcc_adjs) {
@@ -201,65 +271,43 @@ auto DoubleGraph<T>::orderDccs(std::vector<std::unordered_map<size_t, size_t>> &
             idx = static_cast<size_t>(&map - &dcc_adjs.front());
         }
     }
-    // push the group to the final list and erase it from the group adjacents list
-    std::list<size_t> dccIdxOrder;
-    dccIdxOrder.push_back(idx);
-    std::for_each(dcc_adjs.begin(), dcc_adjs.end(), [&idx](auto &map) { map.erase(idx); });
-
-    auto LessOnSecond { [](const auto &a, const auto &b) {
-        return a.second < b.second;
-    } };
-
-    // find a group from group adjacents list that has the most connection to the right/left-most element of the final list
-    // place this group into the final list on the correct side and erase it from the group adjacents list
-    while (dccIdxOrder.size() < dcc_adjs.size()) {
-        std::unordered_map<size_t, size_t> front {};
-        for (auto it { dccIdxOrder.cbegin() }; front.empty(); ++it) {
-            front = dcc_adjs.at(*it);
-        }
-        std::unordered_map<size_t, size_t> back {};
-        for (auto it { dccIdxOrder.crbegin() }; back.empty(); ++it) {
-            back = dcc_adjs.at(*it);
-        }
-
-        auto fIt { std::max_element(front.cbegin(), front.cend(), LessOnSecond) };
-        auto bIt { std::max_element(back.cbegin(), back.cend(), LessOnSecond) };
-
-        bool bothOrNone { (front == dcc_adjs.at(dccIdxOrder.front()) && back == dcc_adjs.at(dccIdxOrder.back()))
-                          || (front != dcc_adjs.at(dccIdxOrder.front()) && back != dcc_adjs.at(dccIdxOrder.back())) };
-        if (bothOrNone) {
-            if (fIt->second > bIt->second) {
-                idx = fIt->first;
-                dccIdxOrder.push_front(idx);
-            } else {
-                idx = bIt->first;
-                dccIdxOrder.push_back(idx);
-            }
-        } else if (front == dcc_adjs.at(dccIdxOrder.front())) {    // only front
-            idx = fIt->first;
-            dccIdxOrder.push_front(idx);
-        } else if (back == dcc_adjs.at(dccIdxOrder.back())) {    // only back
-            idx = bIt->first;
-            dccIdxOrder.push_back(idx);
-        }
-        std::for_each(dcc_adjs.begin(), dcc_adjs.end(), [&idx](auto &map) { map.erase(idx); });
-    }
-    return dccIdxOrder;
+    return idx;
 }
 
 template<class T>
-auto DoubleGraph<T>::orderDcc(const size_t position, const std::unordered_set<T> &vertices, const std::unordered_map<T, size_t> &vert_to_dcc) const
-  -> std::list<T>
+auto DoubleGraph<T>::orderVertToDcc(const std::list<size_t> &dcc_idx_order, std::unordered_map<T, size_t> vert_to_dcc) const
+  -> std::unordered_map<T, size_t>
 {
-    if (vertices.size() == 1) {
-        return { *vertices.cbegin() };
+    std::vector<size_t> dccIdxOrderInv(dcc_idx_order.size());
+    for (auto it { dcc_idx_order.cbegin() }; it != dcc_idx_order.cend(); ++it) {
+        auto idx { std::distance(dcc_idx_order.cbegin(), it) };
+        dccIdxOrderInv[*it] = static_cast<size_t>(idx);
     }
+    // update the vertex to DCC group mapping with the new order of DCCs
+    std::for_each(vert_to_dcc.begin(), vert_to_dcc.end(), [&dccIdxOrderInv](auto &p) { p.second = dccIdxOrderInv[p.second]; });
+    return vert_to_dcc;
+}
 
-    const auto &sAdjList { singleEdgesGraph_.getAdjacencyList() };
-    const auto &dAdjList { doubleEdgesGraph_.getAdjacencyList() };
+template<class T>
+auto DoubleGraph<T>::orderDcc(const std::unordered_set<T> &vertices, const std::unordered_map<T, size_t> &vert_to_dcc) const -> std::list<T>
+{
+    if (vertices.size() == 1)
+        return { *vertices.cbegin() };
+    auto vertBalance { computeVertexBalance(vertices, vert_to_dcc) };
+    T vertex { findMaxDconVert(vertices, vertBalance) };
+    std::vector<std::list<T>> chains { createChains(vertex) };
+    std::list<std::pair<size_t, int>> chainBalances { computeChainBalances(chains, vertBalance) };
+    auto indices { assignChainsLeftRight(chains, chainBalances) };
+    return zipLeftRightChains(vertex, chains, indices);
+}
 
-    // compute vertex balance, i.e. the result of adding all 'signed'hops a vertex have to do (hops to the right/left are positive/negative)
+template<class T>
+auto DoubleGraph<T>::computeVertexBalance(const std::unordered_set<T> &vertices, const std::unordered_map<T, size_t> &vert_to_dcc) const
+  -> std::unordered_map<T, int>
+{
     std::unordered_map<T, int> vertBalance;
+    const auto &sAdjList { singleEdgesGraph_.getAdjacencyList() };
+    const size_t position { vert_to_dcc.at(*vertices.cbegin()) };
     for (const auto &vertex : vertices) {
         vertBalance[vertex] = 0;
         for (const T &adj : sAdjList.at(vertex)) {
@@ -269,21 +317,31 @@ auto DoubleGraph<T>::orderDcc(const size_t position, const std::unordered_set<T>
                 vertBalance[vertex] -= 1;
         }
     }
+    return vertBalance;
+}
 
-    // find a BFS seed vertex with maximum double connections and balance closest to zero
+template<class T>
+auto DoubleGraph<T>::findMaxDconVert(const std::unordered_set<T> &vertices, const std::unordered_map<T, int> &vert_balance) const -> T
+{
+    const auto &dAdjList { doubleEdgesGraph_.getAdjacencyList() };
     T vertex { *vertices.cbegin() };
     size_t maxCon { dAdjList.at(vertex).size() };
     for (const auto &v : vertices) {
         bool replace { (dAdjList.at(v).size() > maxCon)
-                       || ((dAdjList.at(v).size() == maxCon) && (std::abs(vertBalance[v]) < std::abs(vertBalance[vertex]))) };
+                       || ((dAdjList.at(v).size() == maxCon) && (std::abs(vert_balance.at(v)) < std::abs(vert_balance.at(vertex)))) };
         if (replace) {
             maxCon = dAdjList.at(v).size();
             vertex = v;
         }
     }
-    std::list<T> orderedDcc { vertex };
+    return vertex;
+}
 
-    // create chains that start at the seed vertex using BFS
+template<class T>
+auto DoubleGraph<T>::createChains(const T &seed) const -> std::vector<std::list<T>>
+{
+    T vertex { seed };
+    const auto &dAdjList { doubleEdgesGraph_.getAdjacencyList() };
     std::unordered_set<T> visited { vertex };
     std::vector<std::deque<T>> toVisit;
     std::vector<std::list<T>> chains;
@@ -307,40 +365,56 @@ auto DoubleGraph<T>::orderDcc(const size_t position, const std::unordered_set<T>
             }
         }
     }
-    visited.clear();
+    return chains;
+}
 
-    // aggregate vertex balance for each chain
+template<class T>
+auto DoubleGraph<T>::computeChainBalances(const std::vector<std::list<T>> &chains, const std::unordered_map<T, int> &vert_balance) const
+  -> std::list<std::pair<size_t, int>>
+{
     std::list<std::pair<size_t, int>> chainBalances;
     for (size_t idx = 0; idx < chains.size(); idx += 1) {
         chainBalances.emplace_back(idx, 0);
         for (const auto &v : chains[idx]) {
-            chainBalances.back().second += vertBalance.at(v);
+            chainBalances.back().second += vert_balance.at(v);
         }
     }
     chainBalances.sort([](const auto &a, const auto &b) { return a.second < b.second; });
+    return chainBalances;
+}
 
-    // assign chains into two groups; left/right group of the seed
+template<class T>
+auto DoubleGraph<T>::assignChainsLeftRight(const std::vector<std::list<T>> &chains, std::list<std::pair<size_t, int>> chain_balances) const
+  -> std::tuple<std::vector<size_t>, std::vector<size_t>>
+{
     std::vector<size_t> indicesL;
     std::vector<size_t> indicesR;
     size_t countL { 0 };
     size_t countR { 0 };
-    while (not chainBalances.empty()) {
-        bool doRight {
-            (countL > countR)
-            || ((countL == countR) && ((std::abs(chainBalances.back().second) > std::abs(chainBalances.front().second)) || chainBalances.back().second > 0))
-        };
+    while (not chain_balances.empty()) {
+        bool backBtFront { (std::abs(chain_balances.back().second) > std::abs(chain_balances.front().second)) };
+        bool doRight { (countL > countR) || ((countL == countR) && (backBtFront || chain_balances.back().second > 0)) };
         if (doRight) {
-            indicesR.push_back(chainBalances.back().first);
-            chainBalances.pop_back();
+            indicesR.push_back(chain_balances.back().first);
+            chain_balances.pop_back();
             countR += chains[indicesR.back()].size();
         } else {
-            indicesL.push_back(chainBalances.front().first);
-            chainBalances.pop_front();
+            indicesL.push_back(chain_balances.front().first);
+            chain_balances.pop_front();
             countL += chains[indicesL.back()].size();
         }
     }
+    return { indicesL, indicesR };
+}
 
-    // zip the left and right chain groups around seed
+template<class T>
+auto DoubleGraph<T>::zipLeftRightChains(
+  const T &seed,
+  std::vector<std::list<T>> &chains,
+  std::tuple<std::vector<size_t>, std::vector<size_t>> indices) const -> std::list<T>
+{
+    auto [indicesL, indicesR] { indices };
+    std::list<T> orderedDcc { seed };
     while (not std::all_of(chains.cbegin(), chains.cend(), [](const auto &q) { return q.empty(); })) {
         for (auto rit { indicesL.crbegin() }; rit != indicesL.crend(); ++rit) {
             if (not chains[*rit].empty()) {
@@ -353,7 +427,6 @@ auto DoubleGraph<T>::orderDcc(const size_t position, const std::unordered_set<T>
             }
         }
     }
-
     return orderedDcc;
 }
 
